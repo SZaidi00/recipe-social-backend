@@ -13,6 +13,9 @@ def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """Get current user's profile."""
     return current_user
 
+
+# TODO: 
+#? - change it so that user can only udapte their username every 3 or 6 months 
 @router.put("/me", response_model=UserResponse)
 def update_current_user(
     user_update: UserUpdate,
@@ -56,20 +59,21 @@ def get_user_profile(
     
     return user
 
+
+# only want to search users by userName/displayname 
 @router.get("/", response_model=List[UserResponse])
 def search_users(
     q: str = "",
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Search users by email, username, or display name."""
+    """Search users by email or username"""
     if not q:
         return []
     
     users = db.query(User).filter(
         (User.email.ilike(f"%{q}%")) | 
-        (User.username.ilike(f"%{q}%")) |
-        (User.display_name.ilike(f"%{q}%"))
+        (User.username.ilike(f"%{q}%"))
     ).limit(20).all()
     
     return users

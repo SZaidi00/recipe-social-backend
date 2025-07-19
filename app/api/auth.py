@@ -31,7 +31,6 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
         email=user_data.email,                                  
         username=user_data.username,                           
         password_hash=hashed_password,
-        display_name=user_data.display_name or user_data.email.split('@')[0] 
     )
     
     db.add(db_user)
@@ -40,6 +39,8 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
     
     return db_user
 
+
+# need to change this so that user can login with email or username 
 @router.post("/login", response_model=LoginResponse)
 def login(user_data: LoginRequest, db: Session = Depends(get_db)):
     """Login user and return access token."""
@@ -59,8 +60,7 @@ def login(user_data: LoginRequest, db: Session = Depends(get_db)):
         user={
             "id": user.id,
             "email": user.email,                                 
-            "username": user.username,                           
-            "display_name": user.display_name,
+            "username": user.username,
             "profile_image_url": user.profile_image_url
         }
     )

@@ -6,10 +6,9 @@ class LoginRequest(BaseModel):
     password: str
 
 class RegisterRequest(BaseModel):
-    email: EmailStr                                              # ← Primary field
+    email: EmailStr
     password: str
-    username: Optional[str] = None                               # ← Optional
-    display_name: Optional[str] = None
+    username: Optional[str] = None
 
 class LoginResponse(BaseModel):
     access_token: str
