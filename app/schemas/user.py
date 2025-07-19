@@ -18,6 +18,13 @@ class UserResponse(UserBase):
     id: int
     profile_image_url: Optional[str] = None
     created_at: datetime
+    username_last_changed: Optional[datetime] = None  # ← NEW FIELD
     
     class Config:
         from_attributes = True
+    
+class UsernameChangeInfo(BaseModel):
+    can_change: bool
+    days_until_eligible: Optional[int] = None
+    last_changed: Optional[datetime] = None
+    next_eligible_date: Optional[datetime] = None

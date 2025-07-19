@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -28,9 +29,10 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     db_user = User(
-        email=user_data.email,                                  
-        username=user_data.username,                           
+        email=user_data.email,
+        username=user_data.username,
         password_hash=hashed_password,
+        username_last_changed=datetime.utcnow() if user_data.username else None  # ← NEW LINE
     )
     
     db.add(db_user)
