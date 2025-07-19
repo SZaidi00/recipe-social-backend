@@ -28,10 +28,10 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     db_user = User(
-        email=user_data.email,                                   # ← Primary identifier
-        username=user_data.username,                             # ← Optional
+        email=user_data.email,                                  
+        username=user_data.username,                           
         password_hash=hashed_password,
-        display_name=user_data.display_name or user_data.email.split('@')[0]  # ← Default display name
+        display_name=user_data.display_name or user_data.email.split('@')[0] 
     )
     
     db.add(db_user)
@@ -43,23 +43,23 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 def login(user_data: LoginRequest, db: Session = Depends(get_db)):
     """Login user and return access token."""
-    user = db.query(User).filter(User.email == user_data.email).first()  # ← Find by email
+    user = db.query(User).filter(User.email == user_data.email).first()  
     
     if not user or not verify_password(user_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",               # ← Updated error message
+            detail="Incorrect email or password",               
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"sub": user.email})  # ← Use email in token
+    access_token = create_access_token(data={"sub": user.email})  
     
     return LoginResponse(
         access_token=access_token,
         user={
             "id": user.id,
-            "email": user.email,                                 # ← Return email
-            "username": user.username,                           # ← Optional username
+            "email": user.email,                                 
+            "username": user.username,                           
             "display_name": user.display_name,
             "profile_image_url": user.profile_image_url
         }
