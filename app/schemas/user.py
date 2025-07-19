@@ -28,3 +28,7 @@ class UsernameChangeInfo(BaseModel):
     days_until_eligible: Optional[int] = None
     last_changed: Optional[datetime] = None
     next_eligible_date: Optional[datetime] = None
+    
+class DeleteAccountRequest(BaseModel):
+    password: str = Field(..., description="Current password to confirm deletion")
+    confirm_deletion: bool = Field(..., description="Must be true to confirm deletion")

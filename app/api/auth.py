@@ -1,38 +1,46 @@
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from datetime import datetime
 from app.database import get_db
 from app.models import User
-from app.schemas.auth import LoginRequest, LoginResponse, RegisterRequest
 from app.schemas.user import UserResponse
 from app.core.security import verify_password, get_password_hash, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
-    """Register a new user."""
+def register(
+    email: str = Form(..., description="User email address"),
+    username: str = Form(..., min_length=3, max_length=50, description="Unique username"),
+    password: str = Form(..., min_length=6, description="Password (minimum 6 characters)"),
+    bio: str = Form(None, description="Optional user bio"),
+    db: Session = Depends(get_db)
+):
+    """Register a new user with form parameters."""
+    
     # Check if email already exists
-    if db.query(User).filter(User.email == user_data.email).first():
+    if db.query(User).filter(User.email == email).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
     
-    # Check if username already exists (if provided)
-    if user_data.username and db.query(User).filter(User.username == user_data.username).first():
+    # Check if username already exists
+    if db.query(User).filter(User.username == username).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already taken"
         )
     
     # Create new user
-    hashed_password = get_password_hash(user_data.password)
+    hashed_password = get_password_hash(password)
     db_user = User(
-        email=user_data.email,
-        username=user_data.username,
+        email=email,
+        username=username,
         password_hash=hashed_password,
-        username_last_changed=datetime.utcnow() if user_data.username else None  # ← NEW LINE
+        bio=bio,
+        username_last_changed=datetime.utcnow()
     )
     
     db.add(db_user)
@@ -41,28 +49,39 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
     
     return db_user
 
-
-# need to change this so that user can login with email or username 
-@router.post("/login", response_model=LoginResponse)
-def login(user_data: LoginRequest, db: Session = Depends(get_db)):
-    """Login user and return access token."""
-    user = db.query(User).filter(User.email == user_data.email).first()  
+@router.post("/login")
+def login(
+    login: str = Form(..., description="Username or email address"),
+    password: str = Form(..., description="User password"),
+    db: Session = Depends(get_db)
+):
+    """Login user with username OR email using form parameters."""
     
-    if not user or not verify_password(user_data.password, user.password_hash):
+    # Find user by either username OR email
+    user = db.query(User).filter(
+        or_(
+            User.email == login,
+            User.username == login
+        )
+    ).first()
+    
+    if not user or not verify_password(password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",               
+            detail="Incorrect username/email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"sub": user.email})  
+    access_token = create_access_token(data={"sub": user.email})
     
-    return LoginResponse(
-        access_token=access_token,
-        user={
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
             "id": user.id,
-            "email": user.email,                                 
+            "email": user.email,
             "username": user.username,
+            "bio": user.bio,
             "profile_image_url": user.profile_image_url
         }
-    )
+    }
