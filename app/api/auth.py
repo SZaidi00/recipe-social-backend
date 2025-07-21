@@ -7,7 +7,7 @@ from app.models import User
 from app.schemas.user import UserResponse
 from app.core.security import verify_password, get_password_hash, create_access_token
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(prefix="/auth", tags=["User Auth"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(

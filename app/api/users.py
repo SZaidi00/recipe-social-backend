@@ -9,7 +9,7 @@ from app.api.deps import get_current_user
 from app.core.security import verify_password
 from app.utils.helpers import can_change_username, get_next_username_change_date
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["User Info"])
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_profile(current_user: User = Depends(get_current_user)):

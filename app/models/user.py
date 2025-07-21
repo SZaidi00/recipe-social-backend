@@ -16,5 +16,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     username_last_changed = Column(DateTime(timezone=True), nullable=True)  # ← NEW FIELD
     
+    posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}')>"
