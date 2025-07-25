@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import Base, engine
-from app.api import auth, users, posts
+from app.api import auth, users, posts, friends
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix=settings.api_v1_str)
 app.include_router(users.router, prefix=settings.api_v1_str)
 app.include_router(posts.router, prefix=settings.api_v1_str) 
+app.include_router(friends.router, prefix=settings.api_v1_str)
 
 
 @app.get("/")

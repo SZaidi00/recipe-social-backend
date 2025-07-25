@@ -1,2 +1,11 @@
 #TODO: 
 -- double check logic for updating a post when working on the frontend 
+
+
+
+Additional Features 
+-- Friend Categories - Close friends, family, cooking buddies
+-- Friend Activity Feed - See what friends are cooking
+-- Recipe Sharing - Share recipes directly with friends
+-- Group Cooking - Create cooking groups with friends
+-- Friend Recipe Collections - Collaborative recipe lists

@@ -8,6 +8,8 @@ from app.schemas.user import UserResponse, UsernameChangeInfo
 from app.api.deps import get_current_user
 from app.core.security import verify_password
 from app.utils.helpers import can_change_username, get_next_username_change_date
+from app.schemas.friend import PrivacySettings, PrivacySettingsUpdate
+
 
 router = APIRouter(prefix="/users", tags=["User Info"])
 
@@ -145,3 +147,35 @@ def search_users(
     ).limit(limit).all()
     
     return users
+
+@router.get("/me/privacy", response_model=PrivacySettings)
+def get_privacy_settings(current_user: User = Depends(get_current_user)):
+    """Get current user's privacy settings."""
+    
+    return PrivacySettings(
+        friends_list_visibility=current_user.friends_list_visibility,
+        discoverable_for_friends=current_user.discoverable_for_friends
+    )
+
+@router.put("/me/privacy", response_model=PrivacySettings)
+def update_privacy_settings(
+    privacy_update: PrivacySettingsUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update current user's privacy settings."""
+    
+    # Update fields if provided
+    if privacy_update.friends_list_visibility is not None:
+        current_user.friends_list_visibility = privacy_update.friends_list_visibility
+    
+    if privacy_update.discoverable_for_friends is not None:
+        current_user.discoverable_for_friends = privacy_update.discoverable_for_friends
+    
+    db.commit()
+    db.refresh(current_user)
+    
+    return PrivacySettings(
+        friends_list_visibility=current_user.friends_list_visibility,
+        discoverable_for_friends=current_user.discoverable_for_friends
+    )
