@@ -1,6 +1,13 @@
 #TODO: 
 -- double check logic for updating a post when working on the frontend 
 
+FRIENDS: 
+-- if a user declines a friend request, does it just delete it and allow for them to resend? --  need to check -- implement a cooldown for when they can send request again 
+-- check algo for suggested friends 
+-- if a user gets blocked, what are they able to see? -- (might be just a frontend thing)
+-- 
+
+
 
 
 Additional Features 
@@ -9,3 +16,6 @@ Additional Features
 -- Recipe Sharing - Share recipes directly with friends
 -- Group Cooking - Create cooking groups with friends
 -- Friend Recipe Collections - Collaborative recipe lists
+-- revisit frienship score calculator 
+-- if a friend cooks a meal and you have it, you can say you've tried it even though you havent cooked it --> cooked it, tried it, saved it 
+-- include tools used in the recipes for ingredients 
